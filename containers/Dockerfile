@@ -19,11 +19,11 @@ COPY --from=azure-cli /usr/local/bin/az /usr/bin/az
 
 # Install dependencies
 RUN yum install epel-release -y && \
-    yum install -y git python39 python3-pip jq gettext && \
+    yum install -y git python39 python3-pip jq gettext OpenIPMI ipmitool && \
     python3.9 -m pip install -U pip && \
     git clone https://github.com/redhat-chaos/krkn.git --branch v1.2.0 /root/kraken && \
     mkdir -p /root/.kube && cd /root/kraken && \
-    pip3.9 install -r requirements.txt
+    pip3.9 install -r requirements.txt 
 
 WORKDIR /root/kraken
 
