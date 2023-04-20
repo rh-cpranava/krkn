@@ -51,8 +51,8 @@ class BM:
 #             host = bmc_addr[type_position + 3 :]
 #         port_position = host.find(":")
 #         if port_position == -1:
-          port = 623
-          host = bmc_addr
+        port = 623
+        host = bmc_addr
 #         else:
 #             port = int(host[port_position + 1 :])
 #             host = host[0:port_position]
