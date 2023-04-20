@@ -24,7 +24,7 @@ RUN yum install epel-release -y && \
     git clone https://github.com/redhat-chaos/krkn.git --branch v1.2.0 /root/kraken && \
     mkdir -p /root/.kube && cd /root/kraken && \
     pip3.9 install -r requirements.txt 
-
+RUN yum install -y ipmitool OpenIPMI
 WORKDIR /root/kraken
 
 ENTRYPOINT ["python3.9", "run_kraken.py"]
