@@ -4,6 +4,9 @@ node_scenarios:
     - stop_start_kubelet_scenario
     - node_crash_scenario
     node_name:                                                      # node on which scenario has to be injected; can set multiple names separated by comma
+    ingress_vip: True                                               # node which has VIP running on it will be targeted
+    app_label:                                                      # app label for targeting node
+    namespace:                                                      # namespace to consider for app to be taken into consideration
     label_selector: node-role.kubernetes.io/worker                  # when node_name is not specified, a node with matching label_selector is selected for node chaos scenario injection
     instance_count: 1                                               # Number of nodes to perform action/select that match the label selector
     runs: 1                                                         # number of times to inject each scenario under actions (will perform on same node each time)
