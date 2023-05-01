@@ -159,6 +159,7 @@ def list_nodes(label_selector=None):
 
 
 # List nodes in the cluster that can be killed
+# TODO: Make it agnostic to VIP, based on user input if API or APP
 def get_ingress_vip_node(label_selector=None):
     # Define the namespace and configmap name
     namespace = "kube-system"
@@ -170,7 +171,7 @@ def get_ingress_vip_node(label_selector=None):
         cluster_config_yaml = configmap.data['install-config']
         cluster_config = yaml.safe_load(cluster_config_yaml)
         # Extract the ingressVIP value
-        ingress_vip = cluster_config['platform']['baremetal']['ingressVIP']
+        ingress_vip = cluster_config['platform']['baremetal']['ingressVIP'] #TODO: Make it platform-agnostic
         ret = cli.list_node(pretty=True)
         # Iterate through the nodes and check for the annotation with the ingress_vip
         for node in ret.items:
