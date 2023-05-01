@@ -180,7 +180,7 @@ def get_ingress_vip_node(label_selector=None):
                 addresses = ast.literal_eval(annotations['k8s.ovn.org/host-addresses'])
                 # Compare the IP address with the ingress_vip
                 if ingress_vip in addresses:
-                    return node
+                    return [node.metadata.name]
     except client.exceptions.ApiException as e:
         print(f"Error occurred while fetching nodes: {e}")
         return None
