@@ -74,6 +74,9 @@ def inject_node_scenario(action, node_scenario, node_scenario_object):
     instance_kill_count = node_scenario.get("instance_count", 1)
     node_name = node_scenario.get("node_name", "")
     label_selector = node_scenario.get("label_selector", "")
+    ingress_vip = node_scenario.get("ingress_vip", "False")
+    app_label = node_scenario.get("app_label", "")
+    namespace = node_scenario.get("namespace", "")
     timeout = node_scenario.get("timeout", 120)
     service = node_scenario.get("service", "")
     ssh_private_key = node_scenario.get("ssh_private_key", "~/.ssh/id_rsa")
@@ -83,7 +86,7 @@ def inject_node_scenario(action, node_scenario, node_scenario_object):
     else:
         node_name_list = [node_name]
     for single_node_name in node_name_list:
-        nodes = common_node_functions.get_node(single_node_name, label_selector, instance_kill_count)
+        nodes = common_node_functions.get_node(single_node_name, label_selector, instance_kill_count, ingress_vip, app_label, namespace)
         for single_node in nodes:
             if node_general and action not in generic_cloud_scenarios:
                 logging.info("Scenario: " + action + " is not set up for generic cloud type, skipping action")
