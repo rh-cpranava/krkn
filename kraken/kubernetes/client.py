@@ -191,11 +191,11 @@ def list_killable_nodes(label_selector=None, app_label=None, namespace=None):
     try:
         if label_selector:
             ret = cli.list_node(pretty=True, label_selector=label_selector)
+        elif app_label and namespace: 
+            pods = cli.list_namespaced_pod(namespace, label_selector=app_label)
+            return list(set(pod.spec.node_name for pod in pods.items))
         else:
             ret = cli.list_node(pretty=True)
-        if app_label and namespace: 
-            pods = cli.list_namespaced_pod(namespace, label_selector=app_label)
-            ret = set(pod.spec.node_name for pod in pods.items)
     except ApiException as e:
         logging.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
         raise e
