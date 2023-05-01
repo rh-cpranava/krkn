@@ -2,6 +2,8 @@ import logging
 import re
 import sys
 import time
+import yaml
+import ast
 
 from kubernetes import client, config, utils, watch
 from kubernetes.client.rest import ApiException
@@ -157,13 +159,43 @@ def list_nodes(label_selector=None):
 
 
 # List nodes in the cluster that can be killed
-def list_killable_nodes(label_selector=None):
+def get_ingress_vip_node(label_selector=None):
+    # Define the namespace and configmap name
+    namespace = "kube-system"
+    configmap_name = "cluster-config-v1"
+    try:
+        # Get the specified configmap
+        configmap = cli.read_namespaced_config_map(configmap_name, namespace)
+        # Load the YAML data from the configmap
+        cluster_config_yaml = configmap.data['install-config']
+        cluster_config = yaml.safe_load(cluster_config_yaml)
+        # Extract the ingressVIP value
+        ingress_vip = cluster_config['platform']['baremetal']['ingressVIP']
+        ret = cli.list_node(pretty=True)
+        # Iterate through the nodes and check for the annotation with the ingress_vip
+        for node in ret.items:
+            annotations = node.metadata.annotations
+            # Check if the annotation exists
+            if 'k8s.ovn.org/host-addresses' in annotations:
+                addresses = ast.literal_eval(annotations['k8s.ovn.org/host-addresses'])
+                # Compare the IP address with the ingress_vip
+                if ingress_vip in addresses:
+                    return node
+    except client.exceptions.ApiException as e:
+        print(f"Error occurred while fetching nodes: {e}")
+        return None
+
+# List nodes in the cluster that can be killed
+def list_killable_nodes(label_selector=None, app_label=None, namespace=None):
     nodes = []
     try:
         if label_selector:
             ret = cli.list_node(pretty=True, label_selector=label_selector)
         else:
             ret = cli.list_node(pretty=True)
+        if app_label and namespace: 
+            pods = cli.list_namespaced_pod(namespace, label_selector=app_label)
+            ret = set(pod.spec.node_name for pod in pods.items)
     except ApiException as e:
         logging.error("Exception when calling CoreV1Api->list_node: %s\n" % e)
         raise e
@@ -173,7 +205,6 @@ def list_killable_nodes(label_selector=None):
                 if str(cond.type) == "Ready" and str(cond.status) == "True":
                     nodes.append(node.metadata.name)
     return nodes
-
 
 # List managedclusters attached to the hub that can be killed
 def list_killable_managedclusters(label_selector=None):
